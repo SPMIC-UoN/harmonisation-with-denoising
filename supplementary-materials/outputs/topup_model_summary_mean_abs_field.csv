@@ -1,0 +1,3 @@
+,mean,sd,hdi_2.5%,hdi_97.5%,mcse_mean,mcse_sd,ess_bulk,ess_tail,r_hat
+condition[denoised],-0.002,0.004,-0.009,0.005,0.0,0.0,2584.0,1778.0,1.0
+1|scan_id_sigma,0.852,0.369,0.381,1.577,0.012,0.023,848.0,1110.0,1.0

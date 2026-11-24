@@ -8,7 +8,10 @@ in the manuscript.
 pipeline/   download, preprocessing, model inputs, registered model fits, results tables
 results/    one notebook per hypothesis: the tables and figures of the manuscript
 tests/      unit tests of the input tables and of the model-fitting layer
+processed-data/   model input tables, model results and figure data (zipped; see its README)
 ```
+
+To refit the models or redraw most of the figures without running the image processing, see `processed-data/README.md`.
 
 ## From notebook to manuscript
 
@@ -37,8 +40,8 @@ export RR_MANIFEST=/path/to/ds004712_meta/sessions_manifest.csv
 Run `H1.ipynb` and `H2.ipynb` before the others: they write files that the H2 and H4 notebooks read. `FSLDIR` must also be set: the brain maps are drawn on the MNI152 templates shipped with FSL.
 
 `H4_variogram_null.ipynb` and `Supplementary.ipynb` fit models (surrogate fields; the effect of denoising on TOPUP and
-EDDY). They store what they compute under `<derivatives>/analysis/`, so only the first run is slow (about an hour and
-about ten minutes, respectively, on the machine used here). Delete the cached files named in each notebook to
+EDDY). They store what they compute under `<derivatives>/analysis/`, so only the first run is slow (about an hour
+each on the machine used here). Delete the cached files named in each notebook to
 recompute.
 
 ## Running the pipeline

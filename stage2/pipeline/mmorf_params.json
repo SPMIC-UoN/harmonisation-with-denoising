@@ -1,0 +1,104 @@
+{
+  "status": "approved",
+  "source": "FSL documentation, MMORF page ('MMORF - FSL - FMRIB Software Library'), example 3 'Multimodal Scalar & Tensor Registration', https://fsl.fmrib.ox.ac.uk/fsl/docs/registration/mmorf.html, accessed 2026-09-28 (no version/date on the page; verbatim copy in mmorf_fsl_doc_example3.ini). MMORF used: v0.4.2 (FSL 6.0.7.18, fsl-mmorf-cuda-11.0). Lange et al. (2024) Imaging Neuroscience, doi:10.1162/imag_a_00100.",
+  "adaptation": "The FSL example has one scalar (T1) and one tensor pair. Table S1 adds FA as a second scalar pair; following FSL example 2 (multimodal scalar), the second scalar pair uses the same smoothing and weights as the first. Masks and bias estimation are off, as in the example.",
+  "warp_res_init": 32,
+  "warp_scaling": [
+    1,
+    1,
+    2,
+    2,
+    2
+  ],
+  "lambda_reg": [
+    400000.0,
+    0.37,
+    0.31,
+    0.26,
+    0.22
+  ],
+  "hires": 6,
+  "optimiser_max_it_lowres": 5,
+  "optimiser_max_it_hires": 5,
+  "use_masks": false,
+  "t1": {
+    "fwhm_ref": [
+      8.0,
+      8.0,
+      4.0,
+      2.0,
+      1.0
+    ],
+    "fwhm_mov": [
+      8.0,
+      8.0,
+      4.0,
+      2.0,
+      1.0
+    ],
+    "lambda": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "estimate_bias": 0,
+    "bias_res_init": 32,
+    "lambda_bias_reg": [
+      1000000000.0,
+      1000000000.0,
+      1000000000.0,
+      1000000000.0,
+      1000000000.0
+    ]
+  },
+  "fa": {
+    "fwhm_ref": [
+      8.0,
+      8.0,
+      4.0,
+      2.0,
+      1.0
+    ],
+    "fwhm_mov": [
+      8.0,
+      8.0,
+      4.0,
+      2.0,
+      1.0
+    ],
+    "lambda": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "tensor": {
+    "fwhm_ref": [
+      8.0,
+      8.0,
+      4.0,
+      2.0,
+      1.0
+    ],
+    "fwhm_mov": [
+      8.0,
+      8.0,
+      4.0,
+      2.0,
+      1.0
+    ],
+    "lambda": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "approved": "2026-09-28: values verbatim from the FSL documentation example 3; FA added as a second scalar pair with the T1 settings",
+  "verification": "08_mmorf.py-generated config compared with example 3: 24/24 parameters identical (2026-09-28)"
+}

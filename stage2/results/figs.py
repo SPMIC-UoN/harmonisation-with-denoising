@@ -1208,7 +1208,7 @@ def figx_h4_beta1_null(deriv: Path, metrics=("FA", "MD", "MK"), fs: float = 16):
     o = t.beta1_outside_null_95
     sup = {k for k in t.index if R[("H4", k[1], k[2], k[0])]["verdict"] == "supports H4"}
     cap = (
-        "**Figure S16. β1 against variogram-matched surrogate fields (H4, exploratory).** β1 per SD of the pair's "
+        "**Figure S18. β1 against variogram-matched surrogate fields (H4, exploratory).** β1 per SD of the pair's "
         "|off-resonance| (markers; equal to β1 of the model with z-scored |off-resonance|) for each repeat pair, metric and "
         "level. Grey bar = central 95% of β1 over 1,000 surrogate fields with the same values and a matched variogram. "
         f"Filled = outside that range ({int(o.sum())} of {len(t)}: {int((o & (t.beta1_per_hz > 0)).sum())} with β1 > 0, as "
@@ -1297,4 +1297,125 @@ def figx_h4_variogram_fit(deriv: Path, fs: float = 16, dmax: float = 80):
                                      Line2D([], [], color=INK3, linewidth=1.6, label="surrogates: median")],
                              top_pad=0.9, body=5.6, bottom_pad=0.9, draw=draw)], fs)
     fig.caption = cap
+    return fig
+
+
+XTRACT_ABBR = {"Superior Thalamic Radiation": "STR", "Frontal Aslant Tract": "FAT", "Arcuate Fasciculus": "AF",
+               "Superior Longitudinal Fasciculus 1": "SLF1", "Superior Longitudinal Fasciculus 2": "SLF2",
+               "Superior Longitudinal Fasciculus 3": "SLF3", "Corticospinal Tract": "CST",
+               "Middle Longitudinal Fasciculus": "MdLF", "Anterior Thalamic Radiation": "ATR", "Optic Radiation": "OR",
+               "Vertical Occipital Fasciculus": "VOF", "Inferior Fronto-Occipital Fasciculus": "IFOF", "Forceps Minor": "FMI",
+               "Forceps Major": "FMA", "Cingulum subsection: Dorsal": "CBD", "Cingulum subsection: Temporal": "CBT",
+               "Cingulum subsection: Peri-genual": "CBP", "Acoustic Radiation": "AR", "Inferior Longitudinal Fasciculus": "ILF",
+               "Middle Cerebellar Peduncle": "MCP", "Uncinate Fasciculus": "UF", "Fornix": "FX", "Anterior Commissure": "AC",
+               "outside XTRACT": "other"}
+
+
+def fig_mk_exclusion(deriv: Path, fs: float = 9):
+    """Figure S8: why the voxel-wise H3 analysis of MK keeps 26.5% of the candidate voxels (pipeline/mk_exclusion.py)."""
+    import json
+    import pandas as pd
+    from matplotlib.colors import ListedColormap
+    d = deriv / "analysis" / "supplementary" / "mk_exclusion"
+    S = json.loads((d / "summary.json").read_text())
+    bins = pd.read_csv(d / "mk_bins.csv", index_col=0)
+    vox = pd.read_csv(d / "per_voxel.csv.gz")
+    tr = pd.read_csv(d / "by_tract.csv")
+    KEEP, DROP, EXCL = "#1b9e77", "#c9c7c0", "#e8746a"
+    with plt.rc_context({**_style(fs), "axes.spines.top": False, "axes.spines.right": False}):
+        fig = plt.figure(figsize=(11, 11))
+        gs = GridSpec(3, 3, figure=fig, height_ratios=[1, 1, 0.95], hspace=0.55, wspace=0.45)
+
+        # A: MK values in template space
+        axA = ax = fig.add_subplot(gs[0, :2])
+        lab, x = list(bins.index), np.arange(len(bins))
+        ax.bar(x - 0.2, bins["nondenoised"], 0.4, color=ARM_NON, label="non-denoised")
+        ax.bar(x + 0.2, bins["denoised"], 0.4, color=ARM_DEN, label="denoised")
+        ax.set_yscale("log"); ax.set_ylim(1e-3, 400)
+        ax.set_yticks([1e-3, 1e-2, 1e-1, 1, 10, 100], ["0.001", "0.01", "0.1", "1", "10", "100"])
+        ax.set_xticks(x, [l.replace(" (valid)", "\n(valid)") for l in lab], rotation=40, ha="right", fontsize=fs - 1)
+        k = lab.index("0 to 3 (valid)")
+        ax.axvspan(k - 0.5, k + 0.5, color=KEEP, alpha=0.12, lw=0)
+        ax.set_ylabel("% of WM voxel-sessions"); ax.set_xlabel("MK (template space)")
+        ax.legend(frameon=False, loc="upper right")
+        ax.set_title("MK values outside 0–3 are mostly far outside it", loc="left", fontsize=fs + 1)
+
+        # B: excluded voxels by the arm that made them invalid
+        axB = ax = fig.add_subplot(gs[0, 2])
+        t = S["trigger"]
+        items = [("non-denoised\nonly", t["non-denoised only"], ARM_NON), ("denoised\nonly", t["denoised only"], ARM_DEN),
+                 ("both arms", t["both arms"], INK3)]
+        y = np.arange(len(items))[::-1]
+        ax.barh(y, [i[1] for i in items], color=[i[2] for i in items])
+        for yy, i in zip(y, items):
+            ax.text(i[1] + 80, yy, f"{i[1]:,}", va="center", fontsize=fs - 1)
+        ax.set_yticks(y, [i[0] for i in items], fontsize=fs - 1); ax.set_xlim(0, t["both arms"] * 1.3)
+        ax.set_xlabel("Excluded voxels"); ax.set_title("Arm that made the voxel invalid", loc="left", fontsize=fs + 1)
+
+        # C: sessions in which each candidate voxel is invalid
+        axC = ax = fig.add_subplot(gs[1, :2])
+        n = vox.n_invalid.to_numpy()
+        h, _ = np.histogram(n, np.arange(-0.5, n.max() + 1.5))
+        ax.bar(np.arange(len(h)), h, 1.0, color=[KEEP] + [DROP] * (len(h) - 1), edgecolor="white", lw=0.3)
+        ax.set_xlim(-1, 60)
+        ax.set_xlabel("Number of the 85 sessions in which the voxel is invalid"); ax.set_ylabel("Candidate voxels")
+        ax.text(0.8, h[0], f"valid in all 85 sessions:\n{S['kept']:,} of {S['candidates']:,} ({S['kept_pct']:.1f}%) → H3a MK",
+                va="top", fontsize=fs - 1, color=KEEP)
+        ax.text(1.5, h[1] * 0.92, f"invalid in one session only: {S['excluded_in_one_session']:,}", fontsize=fs - 1, color=INK2)
+        ax.set_title("Each H3a voxel must be valid in all 85 sessions and both arms", loc="left", fontsize=fs + 1)
+
+        # D: retained and excluded voxels (each sampled voxel drawn over its 2 x 2 x 2 sampling block)
+        bg, _ = _load(FSL_STD / "MNI152_T1_2mm_brain.nii.gz")
+        bg = bg.astype(float)
+        ijk = np.array(np.unravel_index(vox.unit.to_numpy(), bg.shape)).T
+        lab3 = np.zeros(bg.shape, np.int8)
+        for (i, j, kk), kp in zip(ijk, vox.kept_MK.to_numpy()):
+            lab3[i - i % 2:i - i % 2 + 2, j - j % 2:j - j % 2 + 2, kk - kk % 2:kk - kk % 2 + 2] = 2 if kp else 1
+        lab3[bg <= 0] = 0
+        xs, ys = np.where(bg.max(2) > 0)
+        x0, x1, y0, y1 = xs.min() - 1, xs.max() + 2, ys.min() - 1, ys.max() + 2
+        vmax = np.percentile(bg[bg > 0], 99.5)
+        sub = gs[1, 2].subgridspec(2, 2, wspace=0.03, hspace=0.03)
+        for i, z in enumerate((30, 38, 46, 54)):
+            ax = fig.add_subplot(sub[i // 2, i % 2])
+            if i == 0:
+                axD = ax
+            ax.imshow(np.where(bg[:, :, z] > 0, bg[:, :, z], np.nan)[x0:x1, y0:y1].T, origin="lower", cmap="gray",
+                      vmin=0, vmax=vmax, interpolation="nearest")
+            L = lab3[x0:x1, y0:y1, z].T.astype(float)
+            L[L == 0] = np.nan
+            ax.imshow(L - 1, origin="lower", cmap=ListedColormap([EXCL, KEEP]), vmin=0, vmax=1, alpha=0.9,
+                      interpolation="nearest")
+            ax.set_axis_off()
+        axD.set_title("Retained vs excluded voxels", loc="left", fontsize=fs + 1)
+        fig.legend(handles=[Patch(color=KEEP, label="retained"), Patch(color=EXCL, label="excluded")], frameon=False,
+                   ncol=2, loc="upper center", bbox_to_anchor=(0.795, 0.385), fontsize=fs - 1)
+
+        # E: retention by tract
+        axE = ax = fig.add_subplot(gs[2, :])
+        tr = tr.sort_values("kept_MK_pct", ascending=False)
+        xx = np.arange(len(tr))
+        ax.bar(xx, tr.kept_FA_pct, color=GRID, width=0.8, label="FA (reference)")
+        ax.bar(xx, tr.kept_MK_pct, color=KEEP, width=0.5, label="MK")
+        ax.set_xticks(xx, [f"{XTRACT_ABBR[g]}\n{c}" for g, c in zip(tr.tract, tr.candidates)], fontsize=fs - 1.5)
+        ax.axhline(S["kept_pct"], color=INK, lw=0.8, ls="--")
+        ax.text(len(tr) - 0.5, S["kept_pct"] + 2, f"overall MK {S['kept_pct']:.1f}%", ha="right", fontsize=fs - 1)
+        ax.set_ylim(0, 100); ax.set_xlim(-0.7, len(tr) - 0.3); ax.set_ylabel("% of candidate voxels retained")
+        ax.set_xlabel("XTRACT tract (number of candidate voxels)")
+        ax.legend(frameon=False, loc="lower left", bbox_to_anchor=(0.62, 1.0), ncol=2)
+        ax.set_title("Retention by tract", loc="left", fontsize=fs + 1)
+
+        for lab_, a in zip("ABCDE", [axA, axB, axC, axD, axE]):
+            bb = a.get_position()
+            fig.text(bb.x0 - 0.045, bb.y1 + 0.022, lab_, fontsize=fs + 5, fontweight="bold")
+    fig.caption = (
+        "**Figure S8. Exclusion of voxels from the H3a analysis of MK.** (A) Distribution of MK in template-space white "
+        "matter, pooled over the 85 sessions, for non-denoised and denoised data (log scale). The shaded bin is the valid "
+        "range. (B) Excluded voxels by the arm that made them invalid. \"Both arms\": MK fell outside 0–3 in each arm (in at "
+        "least one session, not necessarily the same one), or the voxel failed the signal checks applied to both arms "
+        f"jointly ({S['signal_checks_only']} voxels). (C) Number of sessions in which each candidate voxel is invalid. Only "
+        "voxels valid in all 85 sessions (green) enter H3a. (D) Retained and excluded candidate voxels on four axial MNI "
+        "slices; each sampled voxel is shown over its 2 × 2 × 2 sampling block. (E) Percentage of candidate voxels retained "
+        "per XTRACT tract for MK (green) and FA (grey, reference), with the number of candidate voxels below each label. "
+        "The dashed line is the overall MK retention.")
     return fig

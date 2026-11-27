@@ -44,7 +44,7 @@ $PY "$HERE/run_models.py" --inputs "$A/inputs" --out "$A/results" --container "$
 $PY "$HERE/run_models.py" --out "$A/results" --combine
 $PY "$HERE/summarise_results.py" --results "$A/results"
 
-# 6. Exploratory: H4 with z-scored |off-resonance| (Table S17)
+# 6. Exploratory: H4 with z-scored |off-resonance| (Table S19)
 H4=$(cd "$A/inputs" && ls h4?_*.csv.gz | sed 's/^h/H/; s/\.csv\.gz$//')
 $PY "$HERE/run_models.py" --inputs "$A/inputs" --out "$A/results_h4_abs_z" --h4-col off_z --only $H4 \
     --container "$ENV_SIF" --bind "$BIND"
@@ -59,7 +59,7 @@ if [ -n "$EXT" ]; then
     $PY "$HERE/summarise_results.py" --results "$A/results_extended_x4"
 fi
 
-# 8. Voxel-wise models on the dense checkerboard (1 in 2 voxels; Table S18)
+# 8. Voxel-wise models on the dense checkerboard (1 in 2 voxels; Table S20)
 $PY "$HERE/build_inputs.py" --deriv-dir "$DERIV" --manifest "$META/sessions_manifest.csv" --out "$A/inputs_dense" \
     --checkerboard parity --hyp H1 H2 H3a H4
 DENSE=$(cd "$A/inputs_dense" && ls h?a_*.csv.gz | sed 's/^h/H/; s/\.csv\.gz$//' | while read -r j; do
@@ -68,7 +68,24 @@ $PY "$HERE/run_models.py" --inputs "$A/inputs_dense" --out "$A/results_dense" --
     --container "$ENV_SIF" --bind "$BIND"
 $PY "$HERE/run_models.py" --out "$A/results_dense" --combine
 
-# 9. Native-unit descriptives and group maps used by the figures
+# 9. Exploratory: H2b with the ROI effects integrated out (Table S16a; pipeline Python environment)
+$PY "$HERE/h2b_integrated.py" --inputs "$A/inputs" --out "$A/results_h2b_integrated"
+
+# 10. Exploratory: voxel-wise H3 of MK with validity required only within each subject (Table S17)
+$PY "$HERE/h3a_mk_persubject.py" --deriv-dir "$DERIV" --manifest "$META/sessions_manifest.csv" \
+    --out "$A/inputs_h3a_mk_persubject"
+for d in 2000 8000; do
+    o="$A/results_h3a_mk_persubject"; [ $d = 8000 ] && o="${o}_x4"
+    $PY "$HERE/run_models.py" --inputs "$A/inputs_h3a_mk_persubject" --out "$o" --only H3a_MK_den0 H3a_MK_den1 \
+        --draws $d --container "$ENV_SIF" --bind "$BIND"
+    $PY "$HERE/run_models.py" --out "$o" --combine
+    $PY "$HERE/summarise_results.py" --results "$o"
+done
+
+# 11. Why H3a keeps 26.5% of the voxels for MK (Supplementary Section 5, Figure S8)
+$PY "$HERE/mk_exclusion.py" --deriv-dir "$DERIV" --out "$A/supplementary/mk_exclusion"
+
+# 12. Native-unit descriptives and group maps used by the figures
 $PY "$HERE/descriptives.py" --deriv-dir "$DERIV" --manifest "$META/sessions_manifest.csv" --out "$A/descriptives"
 for f in --only-h2-per-arm --only-h1-value; do
     $PY "$HERE/descriptives.py" --deriv-dir "$DERIV" --manifest "$META/sessions_manifest.csv" --out "$A/descriptives" $f

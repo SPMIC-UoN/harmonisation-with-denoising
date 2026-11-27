@@ -67,7 +67,7 @@ def fsl(cmds: str, log: Path) -> None:
 
 
 CB_PATTERN = "lattice"                   # sparse checkerboard: i, j, k all even (1 in 8; Section 3.6, ~6,800 voxels)
-CB_PATTERNS = (CB_PATTERN, "parity")     # parity: dense checkerboard (1 in 2), for Table S18
+CB_PATTERNS = (CB_PATTERN, "parity")     # parity: dense checkerboard (1 in 2), for Table S20
 
 
 def checkerboard(shape: tuple, pattern: str) -> np.ndarray:

@@ -25,6 +25,7 @@ creates has the layout used by the pipeline, so it can be used directly as `RR_D
 | `model_results*.zip` | `analysis/results*/` | Model results (see below) |
 | `figure_data*.zip` | `analysis/descriptives/`, `analysis/exploratory/`, `analysis/supplementary/`, `qc/`, `atlas/` | Summaries in native units, results of the exploratory analyses, TOPUP/EDDY and EDDY QC values, and the ROI atlas |
 | `group_maps*.zip` | `analysis/descriptives/`, `analysis/exploratory/` | The brain maps shown in the figures (NIfTI, MNI152, 1 or 2 mm) |
+| `exploratory_extra_*.zip` | `analysis/inputs_h3a_mk_persubject/`, `analysis/results_h2b_integrated/`, `analysis/results_h3a_mk_persubject*/`, `analysis/supplementary/mk_exclusion/` | Exploratory analyses added at Stage 2 review: Tables S16a (H2b with the ROI effects integrated out) and S17 (voxel-wise H3 of MK with per-subject validity), and the data of Figure S8 |
 
 ### Input tables
 
@@ -37,7 +38,7 @@ Voxel-wise tables hold one white-matter voxel in eight. `unit` is the voxel (fla
 | `h1{a,b}_{metric}` | `subject`, `unit`, `den`, `cov`, `y` | `y`: cross-scanner CoV (`cov`), z-scored over all subjects and both conditions |
 | `h2{a,b}_{subject}_{metric}` | `unit`, `delta_bias`, `y` | `y`: ΔBias divided by its SD, not centred |
 | `h3{a,b}_{metric}` | `subject`, `scanner`, `unit`, `r`, `den`, `y_raw`, `y` | `y`: metric value (`y_raw`) minus the unit's mean within its condition, divided by one SD shared by both conditions. `r` is the unit index |
-| `h4{a,b}_{subject}_{metric}` | `unit`, `cov_nonden`, `cov_den`, `delta`, `off_hz`, `off_z` | `delta`: ΔCoV, z-scored with the two conditions pooled. Covariate: `off_hz` (mean off-resonance magnitude, Hz); `off_z` is the z-scored version used in Table S17 |
+| `h4{a,b}_{subject}_{metric}` | `unit`, `cov_nonden`, `cov_den`, `delta`, `off_hz`, `off_z` | `delta`: ΔCoV, z-scored with the two conditions pooled. Covariate: `off_hz` (mean off-resonance magnitude, Hz); `off_z` is the z-scored version used in Table S19 |
 
 CoVs are fractions, not percentages. MD is in mm²/s.
 
@@ -45,10 +46,12 @@ CoVs are fractions, not percentages. MD is in mm²/s.
 
 | Folder | What it holds |
 |---|---|
-| `results/` | Registered models (Tables S10–S13) |
-| `results_extended_x4/` | Fits that did not meet the convergence criteria, re-run with four times as many draws (Table S15) |
-| `results_h4_abs_z/` | H4 with the z-scored off-resonance magnitude (Table S17) |
-| `results_dense/` | Voxel-wise models on the dense checkerboard (Table S18); its ROI-wise results are not used |
+| `results/` | Registered models (Tables S11–S14) |
+| `results_extended_x4/` | Fits that did not meet the convergence criteria, re-run with four times as many draws (Tables S16a, S16b) |
+| `results_h4_abs_z/` | H4 with the z-scored off-resonance magnitude (Table S19) |
+| `results_dense/` | Voxel-wise models on the dense checkerboard (Table S20); its ROI-wise results are not used |
+| `results_h2b_integrated/` | H2b with the ROI effects integrated out (Table S16a; `../pipeline/h2b_integrated.py`) |
+| `results_h3a_mk_persubject/`, `results_h3a_mk_persubject_x4/` | Voxel-wise H3 of MK with validity required only within each subject, 2,000 and 8,000 draws per chain (Table S17); input table in `inputs_h3a_mk_persubject/` |
 
 In each, `<model>/summary.csv` has the posterior mean, SD, 95% interval and convergence diagnostics of each parameter,
 and `<model>/result.json` the Bayes factor, sampler settings and convergence (the name and checksum of the input
@@ -74,12 +77,12 @@ must be set, as described in `../README.md`.
 
 | Notebook | What it makes from these files |
 |---|---|
-| `H1.ipynb` | Table S10, Figures 2 and 6. Under "Exploratory results", run only the last cell (Figure 6); the others read the images of the full pipeline. Table S14 holds the subject means of `analysis/exploratory/H1_spread/decomposition.csv` |
+| `H1.ipynb` | Table S11, Figures 2 and 6. Under "Exploratory results", run only the last cell (Figure 6); the others read the images of the full pipeline. Table S15 holds the subject means of `analysis/exploratory/H1_spread/decomposition.csv` |
 | `H2.ipynb` | All its tables and figures |
-| `H3.ipynb` | Table S12, Figures 4 and 8. Under "Exploratory results", run only the last cell (Figure 8); the others read the images of the full pipeline |
+| `H3.ipynb` | Table S13, Figures 4 and 8. Under "Exploratory results", run only the last cell (Figure 8); the others read the images of the full pipeline |
 | `H4.ipynb` | All its tables and figures |
 | `H4_variogram_null.ipynb` | All its figures, from the stored surrogate results |
-| `Sensitivity.ipynb` | All its tables |
+| `Sensitivity.ipynb` | All its tables and Figure S8 |
 | `Supplementary.ipynb` | All its tables and figures, from the stored TOPUP/EDDY values (it refits the models, about an hour) |
 
 ## Not included

@@ -325,7 +325,7 @@ def mni_nonpos(sub: str, ses: str, a) -> dict:
 
 def mni_wm_mask(out_dir: Path) -> None:
     """H3a WM mask (Section 3.6): FAST on MNI152_T1_1mm_brain, WM PVE >= 0.5 on the FSL MNI152 2 mm grid,
-    then the sparse checkerboard (i, j, k all even; 1 in 8) and the dense one (1 in 2, Table S18). Written to <out>/MNI152_2mm_*."""
+    then the sparse checkerboard (i, j, k all even; 1 in 8) and the dense one (1 in 2, Table S20). Written to <out>/MNI152_2mm_*."""
     wm = out_dir / "MNI152_2mm_wm.nii.gz"
     if not wm.is_file():
         run(f"""cd {out_dir}

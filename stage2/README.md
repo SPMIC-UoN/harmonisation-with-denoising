@@ -20,13 +20,13 @@ caption as a `.md` file) to `<derivatives>/analysis/figures/stage2/`. All plotti
 
 | Notebook | Tables | Figures |
 |---|---|---|
-| `H1.ipynb` | S10, S14 | 2, 6 |
-| `H2.ipynb` | S11 | 3, 7 |
-| `H3.ipynb` | S12 | 4, 8 |
-| `H4.ipynb` | S13 | 5 |
-| `H4_variogram_null.ipynb` | – | 9, S16 (and the ROI-wise autocorrelation check) |
-| `Sensitivity.ipynb` | S7, S15a, S15b, S17, S18 | – |
-| `Supplementary.ipynb` | S6 | S8, S9 |
+| `H1.ipynb` | S11, S15 | 2, 6 |
+| `H2.ipynb` | S12 | 3, 7 |
+| `H3.ipynb` | S13 | 4, 8 |
+| `H4.ipynb` | S14 | 5 |
+| `H4_variogram_null.ipynb` | – | 9, S18 (and the ROI-wise autocorrelation check) |
+| `Sensitivity.ipynb` | S7, S16a, S16b, S17, S19, S20 | S8 |
+| `Supplementary.ipynb` | S6 | S9, S10 |
 
 Each notebook has a "Registered results" part and, where there is one, an "Exploratory results" part.
 
@@ -59,8 +59,11 @@ skipped when a step is re-run.
 | 5 | `build_inputs.py`, `check_inputs.py`, `run_models.py`, `summarise_results.py` | Model input tables, the registered models, results and convergence tables |
 | 6 | `run_models.py --h4-col` | Exploratory: H4 with z-scored \|off-resonance\| |
 | 7 | `run_models.py --draws 8000` | Exploratory: re-run of the fits that did not meet the convergence criteria, with four times as many draws |
-| 8 | `build_inputs.py --checkerboard parity`, `run_models.py` | Exploratory: the voxel-wise models on the dense checkerboard (Table S18) |
-| 9 | `descriptives.py`, `h1_maps.py`, `h2_maps.py`, `h4_maps.py` | Native-unit summaries and group maps used by the figures |
+| 8 | `build_inputs.py --checkerboard parity`, `run_models.py` | Exploratory: the voxel-wise models on the dense checkerboard (Table S20) |
+| 9 | `h2b_integrated.py` | Exploratory: the ROI-wise H2 model with the ROI effects integrated out (Table S16a) |
+| 10 | `h3a_mk_persubject.py`, `run_models.py` | Exploratory: voxel-wise H3 of MK with validity required only within each subject (Table S17) |
+| 11 | `mk_exclusion.py` | Why the voxel-wise H3 analysis of MK keeps 26.5% of the voxels (Supplementary Section 5, Figure S8) |
+| 12 | `descriptives.py`, `h1_maps.py`, `h2_maps.py`, `h4_maps.py` | Native-unit summaries and group maps used by the figures |
 
 ### Software
 
@@ -68,7 +71,7 @@ skipped when a step is re-run.
 - DESIGNER 2.0.11 (Singularity image)
 - The Stage 1 simulation container (built from `simulations/env.def` in this repository; PyMC 5.10.4). The registered
   models are fitted inside it.
-- Python environment for the pipeline scripts and the H1–H4 notebooks: `environment.yml`
+- Python environment for the pipeline scripts and the H1–H4 notebooks: `environment.yml` (`h2b_integrated.py` fits its model in this environment, with the PyMC version of the Stage 1 container)
 - `H4_variogram_null.ipynb` and `Supplementary.ipynb` also need `brainsmash` (0.11.0), `bambi` (0.14.0), `pymc`,
   `arviz`, `seaborn` and `scikit-learn`
 
@@ -110,7 +113,7 @@ with them from `pipeline/session_exceptions.csv`:
 ## Voxel sampling
 
 The voxel-wise models (H1a–H4a) use one white-matter voxel in eight (i, j, k all even on the 2 mm grid; `lattice` in the
-file names). The dense checkerboard (i + j + k even, about half of the voxels; `parity`) is used for Table S18 only.
+file names). The dense checkerboard (i + j + k even, about half of the voxels; `parity`) is used for Table S20 only.
 
 Two short names recur in the code and in the output files:
 

@@ -364,7 +364,7 @@ def main(argv=None) -> int:
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--hyp", nargs="+", choices=("H1", "H2", "H3a", "H3b", "H4"), default=["H1", "H2", "H3a", "H3b", "H4"])
     p.add_argument("--checkerboard", choices=("lattice", "parity"), default="lattice",
-                   help="voxel sampling: lattice = 1 in 8 white-matter voxels (main analysis); parity = 1 in 2 (Table S18)")
+                   help="voxel sampling: lattice = 1 in 8 white-matter voxels (main analysis); parity = 1 in 2 (Table S20)")
     a = p.parse_args(argv)
     a.out.mkdir(parents=True, exist_ok=True)
     D = Data(a.deriv_dir, a.manifest)
